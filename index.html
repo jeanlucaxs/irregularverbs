@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Irregular Verbs Trainer - Apostila Completa</title>
+<style>
+body{
+    font-family: Arial;
+    text-align:center;
+    background:linear-gradient(to right,#1e3c72,#2a5298);
+    color:white;
+}
+button{
+    padding:10px 20px;
+    margin:5px;
+    font-size:16px;
+    cursor:pointer;
+}
+input{
+    padding:8px;
+    font-size:16px;
+}
+#game,#tableSection{
+    display:none;
+    margin-top:20px;
+}
+table{
+    margin:auto;
+    border-collapse:collapse;
+    background:white;
+    color:black;
+}
+th,td{
+    border:1px solid black;
+    padding:6px 10px;
+}
+th{
+    background:#333;
+    color:white;
+}
+#timer{
+    font-size:20px;
+    margin:10px;
+}
+</style>
+</head>
+<body>
+
+<h1>Irregular Verbs - Apostila Completa</h1>
+
+<button onclick="startGame()">Começar Jogo</button>
+<button onclick="showTable()">Mostrar Lista Completa</button>
+
+<div id="game">
+<div id="timer">Tempo: 0s</div>
+<h2 id="question"></h2>
+<input type="text" id="answer" autocomplete="off" onkeydown="handleEnter(event)">
+</div>
+
+<div id="tableSection">
+<h2>Lista Completa</h2>
+<table id="verbTable">
+<tr>
+<th>Infinitivo</th>
+<th>Passado</th>
+<th>Particípio</th>
+<th>Tradução</th>
+</tr>
+</table>
+</div>
+
+<script>
+
+const verbs = [
+{inf:"arise",past:"arose",part:"arisen",pt:"surgir, levantar-se"},
+{inf:"awake",past:"awoke/awaked",part:"awoken/awaked",pt:"despertar"},
+{inf:"be",past:"was/were",part:"been",pt:"ser, estar"},
+{inf:"bear",past:"bore",part:"borne",pt:"suportar, aguentar"},
+{inf:"beat",past:"beat",part:"beaten",pt:"bater, derrotar"},
+{inf:"become",past:"became",part:"become",pt:"tornar-se"},
+{inf:"begin",past:"began",part:"begun",pt:"começar"},
+{inf:"bend",past:"bent",part:"bent",pt:"curvar-se, dobrar"},
+{inf:"bet",past:"bet",part:"bet",pt:"apostar"},
+{inf:"bind",past:"bound",part:"bound",pt:"amarrar, obrigar, encadernar"},
+{inf:"bite",past:"bit",part:"bitten",pt:"morder"},
+{inf:"bleed",past:"bled",part:"bled",pt:"sangrar"},
+{inf:"blow",past:"blew",part:"blown",pt:"soprar"},
+{inf:"break",past:"broke",part:"broken",pt:"quebrar"},
+{inf:"bring",past:"brought",part:"brought",pt:"trazer"},
+{inf:"build",past:"built",part:"built",pt:"construir"},
+{inf:"burn",past:"burnt/burned",part:"burnt/burned",pt:"queimar"},
+{inf:"burst",past:"burst",part:"burst",pt:"irromper, explodir"},
+{inf:"buy",past:"bought",part:"bought",pt:"comprar"},
+{inf:"cast",past:"cast",part:"cast",pt:"lançar, fundir"},
+{inf:"catch",past:"caught",part:"caught",pt:"pegar"},
+{inf:"choose",past:"chose",part:"chosen",pt:"escolher"},
+{inf:"cling",past:"clung",part:"clung",pt:"agarrar-se"},
+{inf:"come",past:"came",part:"come",pt:"vir"},
+{inf:"cost",past:"cost",part:"cost",pt:"custar"},
+{inf:"creep",past:"crept",part:"crept",pt:"engatinhar"},
+{inf:"cut",past:"cut",part:"cut",pt:"cortar"},
+{inf:"deal",past:"dealt",part:"dealt",pt:"negociar"},
+{inf:"dig",past:"dug",part:"dug",pt:"cavar"},
+{inf:"do",past:"did",part:"done",pt:"fazer"},
+{inf:"draw",past:"drew",part:"drawn",pt:"desenhar"},
+{inf:"dream",past:"dreamt/dreamed",part:"dreamt/dreamed",pt:"sonhar"},
+{inf:"drink",past:"drank",part:"drunk",pt:"beber"},
+{inf:"drive",past:"drove",part:"driven",pt:"dirigir"},
+{inf:"dwell",past:"dwelt/dwelled",part:"dwelt/dwelled",pt:"morar"},
+{inf:"eat",past:"ate",part:"eaten",pt:"comer"},
+{inf:"fall",past:"fell",part:"fallen",pt:"cair"},
+{inf:"feed",past:"fed",part:"fed",pt:"alimentar"},
+{inf:"feel",past:"felt",part:"felt",pt:"sentir"},
+{inf:"fight",past:"fought",part:"fought",pt:"lutar"},
+{inf:"find",past:"found",part:"found",pt:"encontrar"},
+{inf:"flee",past:"fled",part:"fled",pt:"fugir"},
+{inf:"fling",past:"flung",part:"flung",pt:"lançar"},
+{inf:"fly",past:"flew",part:"flown",pt:"voar"},
+{inf:"forbid",past:"forbade",part:"forbidden",pt:"proibir"},
+{inf:"forget",past:"forgot",part:"forgotten",pt:"esquecer"},
+{inf:"forgive",past:"forgave",part:"forgiven",pt:"perdoar"},
+{inf:"freeze",past:"froze",part:"frozen",pt:"congelar"},
+{inf:"get",past:"got",part:"gotten/got",pt:"obter"},
+{inf:"give",past:"gave",part:"given",pt:"dar"},
+{inf:"go",past:"went",part:"gone",pt:"ir"},
+{inf:"grind",past:"ground",part:"ground",pt:"moer"},
+{inf:"grow",past:"grew",part:"grown",pt:"crescer"},
+{inf:"hang",past:"hung",part:"hung",pt:"pendurar"},
+{inf:"have",past:"had",part:"had",pt:"ter"},
+{inf:"hear",past:"heard",part:"heard",pt:"ouvir"},
+{inf:"hide",past:"hid",part:"hidden",pt:"esconder"},
+{inf:"hit",past:"hit",part:"hit",pt:"atingir"},
+{inf:"hold",past:"held",part:"held",pt:"segurar"},
+{inf:"hurt",past:"hurt",part:"hurt",pt:"ferir"},
+{inf:"keep",past:"kept",part:"kept",pt:"guardar"},
+{inf:"kneel",past:"knelt/kneeled",part:"knelt/kneeled",pt:"ajoelhar"},
+{inf:"knit",past:"knit/knitted",part:"knit/knitted",pt:"tricotar"},
+{inf:"know",past:"knew",part:"known",pt:"saber"},
+{inf:"lay",past:"laid",part:"laid",pt:"colocar"},
+{inf:"lead",past:"led",part:"led",pt:"conduzir"},
+{inf:"lean",past:"leant/leaned",part:"leant/leaned",pt:"inclinar"},
+{inf:"leap",past:"leapt/leaped",part:"leapt/leaped",pt:"pular"},
+{inf:"learn",past:"learnt/learned",part:"learnt/learned",pt:"aprender"},
+{inf:"leave",past:"left",part:"left",pt:"partir"},
+{inf:"lend",past:"lent",part:"lent",pt:"emprestar"},
+{inf:"let",past:"let",part:"let",pt:"permitir"},
+{inf:"lie",past:"lay",part:"lain",pt:"deitar-se"},
+{inf:"light",past:"lit/lighted",part:"lit/lighted",pt:"acender"},
+{inf:"lose",past:"lost",part:"lost",pt:"perder"},
+{inf:"make",past:"made",part:"made",pt:"fazer"},
+{inf:"mean",past:"meant",part:"meant",pt:"significar"},
+{inf:"meet",past:"met",part:"met",pt:"encontrar"},
+{inf:"mow",past:"mowed",part:"mown/mowed",pt:"cortar plantas"},
+{inf:"pay",past:"paid",part:"paid",pt:"pagar"},
+{inf:"put",past:"put",part:"put",pt:"pôr"},
+{inf:"quit",past:"quit",part:"quit",pt:"desistir"},
+{inf:"read",past:"read",part:"read",pt:"ler"},
+{inf:"ride",past:"rode",part:"ridden",pt:"andar"},
+{inf:"ring",past:"rang",part:"rung",pt:"tocar"},
+{inf:"rise",past:"rose",part:"risen",pt:"subir"},
+{inf:"run",past:"ran",part:"run",pt:"correr"},
+{inf:"saw",past:"sawed",part:"sawn/sawed",pt:"serrar"},
+{inf:"say",past:"said",part:"said",pt:"dizer"},
+{inf:"see",past:"saw",part:"seen",pt:"ver"},
+{inf:"seek",past:"sought",part:"sought",pt:"procurar"},
+{inf:"sell",past:"sold",part:"sold",pt:"vender"},
+{inf:"send",past:"sent",part:"sent",pt:"enviar"},
+{inf:"set",past:"set",part:"set",pt:"instalar"},
+{inf:"sew",past:"sewed",part:"sewn/sewed",pt:"costurar"},
+{inf:"shake",past:"shook",part:"shaken",pt:"sacudir"},
+{inf:"shed",past:"shed",part:"shed",pt:"derramar"},
+{inf:"shine",past:"shone",part:"shone",pt:"brilhar"},
+{inf:"shoot",past:"shot",part:"shot",pt:"atirar"},
+{inf:"show",past:"showed",part:"shown",pt:"mostrar"},
+{inf:"shrink",past:"shrank",part:"shrunk",pt:"encolher"},
+{inf:"shut",past:"shut",part:"shut",pt:"fechar"},
+{inf:"sing",past:"sang",part:"sung",pt:"cantar"},
+{inf:"sink",past:"sank",part:"sunk",pt:"afundar"},
+{inf:"sit",past:"sat",part:"sat",pt:"sentar"},
+{inf:"slay",past:"slew",part:"slain",pt:"assassinar"},
+{inf:"sleep",past:"slept",part:"slept",pt:"dormir"},
+{inf:"slide",past:"slid",part:"slid",pt:"deslizar"},
+{inf:"smell",past:"smelt/smelled",part:"smelt/smelled",pt:"cheirar"},
+{inf:"sow",past:"sowed",part:"sown/sowed",pt:"semear"},
+{inf:"speak",past:"spoke",part:"spoken",pt:"falar"},
+{inf:"speed",past:"sped/speeded",part:"sped/speeded",pt:"acelerar"},
+{inf:"spell",past:"spelt/spelled",part:"spelt/spelled",pt:"soletrar"},
+{inf:"spend",past:"spent",part:"spent",pt:"gastar"},
+{inf:"spill",past:"spilt/spilled",part:"spilt/spilled",pt:"derramar"},
+{inf:"spin",past:"span/spun",part:"spun",pt:"girar"},
+{inf:"split",past:"split",part:"split",pt:"dividir"},
+{inf:"spread",past:"spread",part:"spread",pt:"espalhar"},
+{inf:"spring",past:"sprang",part:"sprung",pt:"brotar"},
+{inf:"stand",past:"stood",part:"stood",pt:"ficar em pé"},
+{inf:"steal",past:"stole",part:"stolen",pt:"roubar"},
+{inf:"stick",past:"stuck",part:"stuck",pt:"grudar"},
+{inf:"sting",past:"stung",part:"stung",pt:"ferroar"},
+{inf:"strike",past:"struck",part:"struck",pt:"atingir"},
+{inf:"strive",past:"strove",part:"striven",pt:"esforçar-se"},
+{inf:"swear",past:"swore",part:"sworn",pt:"jurar"},
+{inf:"sweat",past:"sweat/sweated",part:"sweat/sweated",pt:"transpirar"},
+{inf:"sweep",past:"swept",part:"swept",pt:"varrer"},
+{inf:"swell",past:"swelled",part:"swollen/swelled",pt:"inchar"},
+{inf:"swim",past:"swam",part:"swum",pt:"nadar"},
+{inf:"swing",past:"swung",part:"swung",pt:"balançar"},
+{inf:"take",past:"took",part:"taken",pt:"tomar"},
+{inf:"teach",past:"taught",part:"taught",pt:"ensinar"},
+{inf:"tear",past:"tore",part:"torn",pt:"rasgar"},
+{inf:"tell",past:"told",part:"told",pt:"contar"},
+{inf:"think",past:"thought",part:"thought",pt:"pensar"},
+{inf:"throw",past:"threw",part:"thrown",pt:"lançar"},
+{inf:"thrust",past:"thrust",part:"thrust",pt:"empurrar"},
+{inf:"understand",past:"understood",part:"understood",pt:"entender"},
+{inf:"wake",past:"woke/waked",part:"woken/waked",pt:"acordar"},
+{inf:"wear",past:"wore",part:"worn",pt:"vestir"},
+{inf:"weave",past:"wove",part:"woven",pt:"tecer"},
+{inf:"wed",past:"wed",part:"wed",pt:"casar-se"},
+{inf:"weep",past:"wept",part:"wept",pt:"chorar"},
+{inf:"wet",past:"wet",part:"wet",pt:"molhar"},
+{inf:"win",past:"won",part:"won",pt:"vencer"},
+{inf:"wind",past:"wound",part:"wound",pt:"enrolar"},
+{inf:"withdraw",past:"withdrew",part:"withdrawn",pt:"retirar"},
+{inf:"write",past:"wrote",part:"written",pt:"escrever"}
+];
+
+let current, correctForm;
+let time=0, interval;
+
+function startGame(){
+document.getElementById("game").style.display="block";
+document.getElementById("tableSection").style.display="none";
+time=0;
+clearInterval(interval);
+interval=setInterval(()=>{time++;document.getElementById("timer").innerText="Tempo: "+time+"s";},1000);
+nextQuestion();
+}
+
+function nextQuestion(){
+current=verbs[Math.floor(Math.random()*verbs.length)];
+const forms=["inf","past","part"];
+correctForm=forms[Math.floor(Math.random()*3)];
+document.getElementById("question").innerText=
+"Tradução: "+current.pt+" | Digite o "+
+(correctForm=="inf"?"Infinitivo":correctForm=="past"?"Passado":"Particípio");
+document.getElementById("answer").value="";
+}
+
+function handleEnter(e){
+if(e.key==="Enter"){checkAnswer();}
+}
+
+function checkAnswer(){
+let ans=document.getElementById("answer").value.toLowerCase().trim();
+let correct=current[correctForm].toLowerCase();
+let options=correct.split("/");
+if(options.includes(ans)){
+nextQuestion();
+}else{
+alert("Você errou!\nResposta correta: "+current[correctForm]+"\nReiniciando...");
+clearInterval(interval);
+startGame();
+}
+}
+
+function showTable(){
+document.getElementById("game").style.display="none";
+document.getElementById("tableSection").style.display="block";
+const table=document.getElementById("verbTable");
+table.innerHTML=`<tr>
+<th>Infinitivo</th>
+<th>Passado</th>
+<th>Particípio</th>
+<th>Tradução</th>
+</tr>`;
+verbs.forEach(v=>{
+table.innerHTML+=`<tr>
+<td>${v.inf}</td>
+<td>${v.past}</td>
+<td>${v.part}</td>
+<td>${v.pt}</td>
+</tr>`;
+});
+}
+
+</script>
+</body>
+  </html>
